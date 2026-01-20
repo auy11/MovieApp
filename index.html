@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TMDB API ile güçlendirilmiş profesyonel film ve dizi arama platformu. Favorilerinizi ekleyin, izlenecekler listesi oluşturun.">
+    <meta name="keywords" content="film, dizi, sinema, TMDB, movie, tv show, arama">
+    <meta name="author" content="FilmArama">
+    <meta name="theme-color" content="#f5c518">
+    
+    <title>🎬 FilmArama - Film ve Dizi Keşfet | TMDB</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="https://www.themoviedb.org/assets/2/favicon-32x32-543a21832c8931d3494a68881f6afcafc58e96c5d324345377f3197a37b367b5.png">
+    <link rel="apple-touch-icon" href="https://www.themoviedb.org/assets/2/apple-touch-icon-cfba7699efe7a742de0c05a694e8f298a6d55a8e79a86eb31f8e3ec5b1218bef.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/themes.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="FilmArama - Film ve Dizi Keşfet">
+    <meta property="og:description" content="TMDB API ile güçlendirilmiş profesyonel film ve dizi arama platformu">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FilmArama - Film ve Dizi Keşfet">
+    <meta name="twitter:description" content="TMDB API ile güçlendirilmiş profesyonel film ve dizi arama platformu">
+</head>
+<body class="dark-theme">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Filmler yükleniyor...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <nav class="navbar" role="navigation" aria-label="Ana navigasyon">
+                <div class="logo" id="logo" role="button" tabindex="0" aria-label="Ana sayfaya dön">
+                    <i class="fas fa-film" aria-hidden="true"></i>
+                    <h1>FilmArama</h1>
+                </div>
+                
+                <div class="search-container">
+                    <div class="search-box" role="search">
+                        <input 
+                            type="search" 
+                            id="searchInput" 
+                            placeholder="Film, dizi veya kişi ara..." 
+                            aria-label="Film veya dizi ara"
+                            autocomplete="off"
+                            spellcheck="false">
+                        <button id="searchButton" class="search-btn" aria-label="Ara" title="Ara">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                        </button>
+                        <button id="clearSearch" class="clear-search-btn" style="display: none;" aria-label="Aramayı temizle" title="Temizle">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="header-controls">
+                    <button id="themeToggle" class="theme-toggle" title="Tema Değiştir" aria-label="Koyu/Aydınlık tema değiştir">
+                        <i class="fas fa-sun" aria-hidden="true"></i>
+                    </button>
+                    <button id="favoritesBtn" class="favorites-btn" title="Favorilerim" aria-label="Favori filmlerim">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span id="favoritesCount" class="badge" aria-label="Favori sayısı">0</span>
+                    </button>
+                    <button id="watchlistBtn" class="watchlist-btn" title="İzlenecekler" aria-label="İzlenecekler listem">
+                        <i class="fas fa-bookmark" aria-hidden="true"></i>
+                        <span id="watchlistCount" class="badge" aria-label="İzlenecek sayısı">0</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+        <div class="container">
+            <!-- Filters Section -->
+            <section class="filters-container" aria-label="Filtreleme seçenekleri">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="genreFilter">
+                            <i class="fas fa-masks-theater" aria-hidden="true"></i> Tür:
+                        </label>
+                        <select id="genreFilter" class="filter-select" aria-label="Film türü seçin">
+                            <option value="">Tüm Türler</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="sortFilter">
+                            <i class="fas fa-sort-amount-down" aria-hidden="true"></i> Sırala:
+                        </label>
+                        <select id="sortFilter" class="filter-select" aria-label="Sıralama seçin">
+                            <option value="popularity.desc">En Popüler</option>
+                            <option value="vote_average.desc">En Yüksek Puan</option>
+                            <option value="release_date.desc">En Yeni</option>
+                            <option value="revenue.desc">En Çok Hasılat</option>
+                            <option value="vote_count.desc">En Çok Oylanan</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="yearFilter">
+                            <i class="fas fa-calendar-alt" aria-hidden="true"></i> Yıl:
+                        </label>
+                        <input 
+                            type="number" 
+                            id="yearFilter" 
+                            class="filter-input" 
+                            min="1900" 
+                            max="2025" 
+                            placeholder="Yıl seç"
+                            aria-label="Yıl filtresi">
+                    </div>
+                    
+                    <button id="clearFilters" class="clear-filters-btn" aria-label="Tüm filtreleri temizle">
+                        <i class="fas fa-eraser" aria-hidden="true"></i> Temizle
+                    </button>
+                </div>
+                
+                <div class="view-toggle" role="group" aria-label="Görünüm modu">
+                    <button id="gridView" class="view-btn active" title="Grid Görünümü" aria-label="Grid görünümü" aria-pressed="true">
+                        <i class="fas fa-th-large" aria-hidden="true"></i>
+                    </button>
+                    <button id="listView" class="view-btn" title="Liste Görünümü" aria-label="Liste görünümü" aria-pressed="false">
+                        <i class="fas fa-list" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Movies Grid -->
+            <section id="moviesContainer" class="movies-container" aria-label="Film listesi">
+                <div id="moviesGrid" class="movies-grid grid-view" role="list">
+                    <!-- Movies will be loaded here dynamically -->
+                </div>
+                
+                <!-- Pagination -->
+                <nav id="pagination" class="pagination" role="navigation" aria-label="Sayfa navigasyonu">
+                    <!-- Pagination will be loaded here dynamically -->
+                </nav>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-logo">
+                        <i class="fas fa-film" aria-hidden="true"></i>
+                        <h3>FilmArama</h3>
+                    </div>
+                    <p>TMDB API kullanılarak geliştirilmiş profesyonel film ve dizi platformu.</p>
+                    <p>Binlerce film ve diziye anında erişin, favorilerinizi kaydedin.</p>
+                    <p class="copyright">© 2024 FilmArama. Tüm hakları saklıdır.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Bağlantılar</h4>
+                    <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" class="footer-link">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> TMDB Resmi Site
+                    </a>
+                    <a href="https://developers.themoviedb.org/3" target="_blank" rel="noopener noreferrer" class="footer-link">
+                        <i class="fas fa-book" aria-hidden="true"></i> API Dokümantasyonu
+                    </a>
+                    <button id="aboutBtn" class="footer-link">
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> Hakkında
+                    </button>
+                </div>
+                
+                <div class="footer-stats">
+                    <h4>İstatistikler</h4>
+                    <div class="stat-item">
+                        <span class="stat-label">Toplam Film:</span>
+                        <span id="totalMovies" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Favoriler:</span>
+                        <span id="totalFavorites" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">İzlenecekler:</span>
+                        <span id="totalWatchlist" class="stat-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Movie Details Modal -->
+    <div id="movieModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">
+                    <i class="fas fa-film" aria-hidden="true"></i> Film Detayları
+                </h2>
+                <button id="closeModal" class="close-modal" aria-label="Modalı kapat">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <!-- Movie details will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div id="favoritesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="favoritesModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="favoritesModalTitle">
+                    <i class="fas fa-heart" aria-hidden="true"></i> Favori Filmlerim
+                </h2>
+                <button id="closeFavoritesModal" class="close-modal" aria-label="Favoriler modalını kapat">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="favoritesList" class="favorites-list">
+                <!-- Favorites will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Watchlist Modal -->
+    <div id="watchlistModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="watchlistModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="watchlistModalTitle">
+                    <i class="fas fa-bookmark" aria-hidden="true"></i> İzlenecekler Listem
+                </h2>
+                <button id="closeWatchlistModal" class="close-modal" aria-label="İzlenecekler modalını kapat">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="watchlistContent" class="watchlist-content">
+                <!-- Watchlist will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+        <div class="modal-content about-modal">
+            <div class="modal-header">
+                <h2 id="aboutModalTitle">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i> Hakkında
+                </h2>
+                <button id="closeAboutModal" class="close-modal" aria-label="Hakkında modalını kapat">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="about-content">
+                    <div class="about-logo">
+                        <i class="fas fa-film" aria-hidden="true"></i>
+                        <h3>FilmArama</h3>
+                    </div>
+                    
+                    <p>Bu uygulama, The Movie Database (TMDB) API kullanılarak geliştirilmiş profesyonel bir film ve dizi platformudur. 
+                       Binlerce film ve diziye anında erişim, detaylı bilgi görüntüleme, favorilere ekleme ve 
+                       izlenecekler listesi oluşturma gibi özellikler sunar.</p>
+                    
+                    <div class="features">
+                        <h4><i class="fas fa-star" aria-hidden="true"></i> Özellikler</h4>
+                        <ul>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> Gelişmiş film ve dizi arama</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> Detaylı bilgi ve fragmanlar</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> Favori listesi oluşturma</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> İzlenecekler listesi</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> Karanlık/Aydınlık tema</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> IMDB tarzı profesyonel tasarım</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> Tam responsive tasarım</li>
+                            <li><i class="fas fa-check-circle" aria-hidden="true"></i> Gelişmiş filtreleme seçenekleri</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="technologies">
+                        <h4><i class="fas fa-code" aria-hidden="true"></i> Kullanılan Teknolojiler</h4>
+                        <div class="tech-tags">
+                            <span class="tech-tag">HTML5</span>
+                            <span class="tech-tag">CSS3</span>
+                            <span class="tech-tag">JavaScript ES6+</span>
+                            <span class="tech-tag">TMDB API v3</span>
+                            <span class="tech-tag">LocalStorage</span>
+                            <span class="tech-tag">Responsive Design</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-info">
+                        <p><strong>API:</strong> The Movie Database (TMDB)</p>
+                        <p><strong>Versiyon:</strong> 1.0.0</p>
+                        <p><strong>Geliştirici:</strong> FilmArama Ekibi</p>
+                        <p><strong>Lisans:</strong> MIT License</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts - Load in order -->
+    <script src="scripts/utils/constants.js"></script>
+    <script src="scripts/utils/helpers.js"></script>
+    <script src="scripts/utils/LocalStorageManager.js"></script>
+    <script src="scripts/models/Movie.js"></script>
+    <script src="scripts/models/Cast.js"></script>
+    <script src="scripts/models/Video.js"></script>
+    <script src="scripts/services/TMDBService.js"></script>
+    <script src="scripts/store/MovieStore.js"></script>
+    <script src="scripts/managers/SearchManager.js"></script>
+    <script src="scripts/ui/UIManager.js"></script>
+    <script src="scripts/app.js"></script>
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FilmArama",
+        "description": "TMDB API ile güçlendirilmiş profesyonel film ve dizi arama platformu",
+        "url": "https://filmarama.com",
+        "applicationCategory": "Entertainment",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "TRY"
+        }
+    }
+    </script>
+</body>
+</html>
